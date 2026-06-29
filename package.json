@@ -3,5 +3,5 @@
   "version": "1.0.0",
   "description": "Security outer-harness for GitHub Copilot: skills + guardrail hook + ruleset.",
   "license": "MIT",
-  "scripts": { "test": "node demo/test.js", "demo": "node demo/demo.js", "scan": "node .agents/scripts/scan.js" }
+  "scripts": { "test": "node demo/test.js", "demo": "node demo/demo.js", "scan": "node .agents/scripts/scan.js", "dashboard": "node dashboard/serve.js" }
 }
