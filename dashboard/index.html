@@ -31,7 +31,7 @@
   .st.block{background:var(--blocksoft);color:var(--block);}.st.warn{background:var(--warnsoft);color:var(--warn);}.st.allow{background:var(--allowsoft);color:var(--allow);}
   .file{font-size:11.5px;color:var(--muted);margin-top:14px;}
   .donutwrap{display:flex;align-items:center;gap:18px;}.donut-c{font-size:12px;color:var(--muted);line-height:1.9;}
-  #tip{position:fixed;pointer-events:none;background:#1b2330;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:11.5px;color:var(--text);opacity:0;transition:opacity .1s;box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:9;}
+  #tip{position:fixed;pointer-events:none;background:#1b2330;border:1px solid var(--border);border-radius:7px;padding:7px 10px;font-size:11.5px;color:var(--text);opacity:0;transition:opacity .1s;box-shadow:0 4px 14px rgba(0,0,0,.5);z-index:9;max-width:420px;}
   #line circle:hover{r:5;}#donut circle{transition:stroke-width .1s;}.bar:hover .fill{filter:brightness(1.25);}
 </style>
 </head>
@@ -57,7 +57,7 @@
 <script>
 const COL={block:"#ff5c6c",warn:"#e3b341",allow:"#3fb950"};
 const CATCOL=["#ff5c6c","#2f81f7","#e3b341","#a371f7","#3fb950"];
-function parseLog(text){return text.trim().split("\n").map(l=>{try{const j=JSON.parse(l);return{ts:new Date(j.ts).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}),tool:j.tool||"-",decision:j.decision,cat:(j.hits&&j.hits[0]?j.hits[0].category:"-")};}catch{return null;}}).filter(Boolean);}
+function parseLog(text){return text.trim().split("\n").map(l=>{try{const j=JSON.parse(l);return{ts:new Date(j.ts).toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Asia/Seoul"}),tool:j.tool||"-",decision:j.decision,cat:(j.hits&&j.hits[0]?j.hits[0].category:"-"),input:j.input||"",sev:(j.hits&&j.hits[0]?j.hits[0].severity:""),msg:(j.hits&&j.hits[0]?j.hits[0].message:"")};}catch{return null;}}).filter(Boolean);}
 function render(d){
  const t=d.length,b=d.filter(x=>x.decision==="block").length,w=d.filter(x=>x.decision==="warn").length,a=d.filter(x=>x.decision==="allow").length;
  ctotal.textContent=t;cblock.textContent=b;cwarn.textContent=w;callow.textContent=a;
@@ -70,7 +70,7 @@ function render(d){
  document.getElementById("dlegend").innerHTML=seg.map(s=>'<div><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+s[2]+'"></i> '+s[0].toUpperCase()+' '+s[1]+'</div>').join("");
  const cats={};d.filter(x=>x.cat&&x.cat!=="-").forEach(x=>cats[x.cat]=(cats[x.cat]||0)+1);const mx=Math.max(1,...Object.values(cats));
  document.getElementById("cats").innerHTML=Object.entries(cats).sort((p,q)=>q[1]-p[1]).map((e,i)=>'<div class="bar tp" data-tip="'+e[0]+' BLOCK '+e[1]+'"><span class="name">'+e[0]+'</span><span class="track"><span class="fill" style="width:'+(e[1]/mx*100)+'%;background:'+CATCOL[i%5]+'"></span></span><span class="c">'+e[1]+'</span></div>').join("");
- document.getElementById("rows").innerHTML=d.slice().reverse().map(x=>'<tr><td>'+x.ts+'</td><td>'+x.tool+'</td><td><span class="st '+x.decision+'">'+x.decision.toUpperCase()+'</span></td><td>'+x.cat+'</td></tr>').join("");
+ document.getElementById("rows").innerHTML=d.slice().reverse().map(x=>'<tr class="tp" data-tip="'+(x.sev?x.sev.toUpperCase()+" · "+x.msg+" · ":"")+(x.input||"-")+'"><td>'+x.ts+'</td><td>'+x.tool+'</td><td><span class="st '+x.decision+'">'+x.decision.toUpperCase()+'</span></td><td>'+x.cat+'</td></tr>').join("");
 }
 const tip=document.getElementById("tip");document.body.addEventListener("mousemove",e=>{const t=e.target.closest(".tp");if(t&&t.dataset.tip){tip.textContent=t.dataset.tip;tip.style.opacity=1;tip.style.left=(e.clientX+12)+"px";tip.style.top=(e.clientY+12)+"px";}else{tip.style.opacity=0;}});
 fetch("guardrail.log").then(r=>r.text()).then(t=>{const d=parseLog(t);if(d.length)render(d);}).catch(()=>{});
