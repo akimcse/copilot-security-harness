@@ -1,6 +1,6 @@
-# Agent Operating Instructions — Security Harness
+# Agent Operating Instructions — Security Harness for GitHub Copilot
 
-This repository is a **security harness** for AI coding agents (GitHub Copilot). Treat these documents as active operating context, not passive reference.
+This repository is the **Security Harness for GitHub Copilot** — a guardrail harness for AI coding agents. Treat these documents as active operating context, not passive reference.
 
 ## Required context loading
 Before reviewing, implementing, or running shell/tool actions:

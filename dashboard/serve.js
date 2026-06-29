@@ -26,7 +26,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, () => {
   const url = `http://localhost:${port}/index.html`;
-  console.log(`Security Harness dashboard → ${url}`);
+  console.log(`Security Harness for GitHub Copilot dashboard → ${url}`);
   const cmd = process.platform === 'win32' ? `start "" "${url}"` : process.platform === 'darwin' ? `open ${url}` : `xdg-open ${url}`;
   exec(cmd, () => {});
 });

@@ -1,4 +1,4 @@
-# Security Harness for GitHub Copilot — 보안 아우터 하네스
+# Security Harness for GitHub Copilot
 
 ![demo](demo/banner.svg)
 

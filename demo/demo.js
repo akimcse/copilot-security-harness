@@ -13,7 +13,7 @@ const scn = [
   ['안전한 명령', 'rm -rf node_modules'],
 ];
 const icon = { block: '🛑 BLOCK', warn: '⚠️  WARN ', allow: '✅ ALLOW' };
-console.log('\nSecurity Harness — guardrail demo\n' + '='.repeat(48));
+console.log('\nSecurity Harness for GitHub Copilot — guardrail demo\n' + '='.repeat(48));
 for (const [label, cmd] of scn) {
   const { decision, hits } = evaluate(cmd, rs);
   console.log(`${icon[decision]}  ${label.padEnd(8)} | ${cmd}`);

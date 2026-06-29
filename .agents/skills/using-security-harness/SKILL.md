@@ -1,9 +1,9 @@
 ---
 name: using-security-harness
-description: Entry point/router for the Security Harness. Use at the start of any security task to pick the right skill — secret scanning, guardrail review of risky actions, threat modeling, secure code review, or incident triage. Maps each task to a Microsoft Defender real-time agent protection threat class.
+description: Entry point/router for the Security Harness for GitHub Copilot. Use at the start of any security task to pick the right skill — secret scanning, guardrail review of risky actions, threat modeling, secure code review, or incident triage. Maps each task to a Microsoft Defender real-time agent protection threat class.
 ---
 
-# Using the Security Harness
+# Using the Security Harness for GitHub Copilot
 
 Router for security work on AI-generated code and agent actions. Pick the skill, then run it. All skills report in Korean for security teams and cite `CONTEXT.md` for shared vocabulary.
 
