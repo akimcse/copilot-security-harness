@@ -1,5 +1,7 @@
 # Security Harness for GitHub Copilot — 보안 아우터 하네스
 
+![demo](demo/banner.svg)
+
 > AI 코딩 에이전트(GitHub Copilot)를 **보안팀의 방법론으로 운영**하는 하네스 에셋. 위험행위 탐지·차단·조사 + 보안 워크플로 스킬 모음. (Track 02 · 직접 개발)
 
 유명 OSS 하네스(Superpowers)가 *개발 생산성* 패턴을 이식했다면, 이 하네스는 **보안 거버넌스** 도메인을 GHCP `.agents/skills/` 포맷으로 직접 설계했다. 위협 분류는 **Microsoft Defender 실시간 에이전트 보호**와 정렬.
