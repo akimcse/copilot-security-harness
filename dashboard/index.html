@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Security Harness — Guardrail Dashboard</title>
+<style>
+  :root{--bg:#f6f8fa;--surface:#fff;--border:#d0d7de;--text:#1f2328;--muted:#656d76;--accent:#0969da;--block:#cf222e;--warn:#9a6700;--allow:#1a7f37;--blocksoft:#ffebe9;--warnsoft:#fff8c5;--allowsoft:#dafbe1;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:28px;}
+  h1{font-size:22px;}h1 .v{color:var(--allow);font-size:13px;font-weight:600;margin-left:8px;}
+  .sub{color:var(--muted);font-size:13px;margin:4px 0 22px;}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .card .n{font-size:30px;font-weight:700;}.card .l{font-size:12px;color:var(--muted);margin-top:2px;}
+  .grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:20px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+  .panel h2{font-size:14px;margin-bottom:14px;}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px;}
+  .bar .name{width:140px;color:var(--muted);}.bar .track{flex:1;height:18px;background:#eaeef2;border-radius:5px;overflow:hidden;}
+  .bar .fill{height:100%;border-radius:5px;}.bar .c{width:30px;text-align:right;font-weight:700;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);}
+  td{padding:7px 8px;border-bottom:1px solid #eaeef2;}
+  .st{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+  .block{background:var(--blocksoft);color:var(--block);}.warn{background:var(--warnsoft);color:var(--warn);}.allow{background:var(--allowsoft);color:var(--allow);}
+  .spark{display:flex;align-items:flex-end;gap:5px;height:70px;}
+  .spark div{flex:1;border-radius:3px 3px 0 0;opacity:.85;}
+  .file{font-size:12px;color:var(--muted);margin-top:14px;}.file input{font-size:12px;}
+</style>
+</head>
+<body>
+  <h1>Security Harness — Guardrail Dashboard<span class="v">GitHub Copilot · 6 skills</span></h1>
+  <div class="sub">스킬 차단 현황 · 위협 분류 분포 · 최근 실행 — Microsoft Defender 위협 분류 정렬</div>
+  <div class="cards">
+    <div class="card"><div class="n" id="ctotal">0</div><div class="l">총 평가</div></div>
+    <div class="card"><div class="n" style="color:var(--block)" id="cblock">0</div><div class="l">차단 (BLOCK)</div></div>
+    <div class="card"><div class="n" style="color:var(--warn)" id="cwarn">0</div><div class="l">경고 (WARN)</div></div>
+    <div class="card"><div class="n" style="color:var(--allow)" id="callow">0</div><div class="l">허용 (ALLOW)</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h2>위협 분류별 차단</h2><div id="cats"></div></div>
+    <div class="panel"><h2>판정 추이</h2><div class="spark" id="spark"></div></div>
+  </div>
+  <div class="panel"><h2>최근 실행</h2><table><thead><tr><th>시각</th><th>스킬</th><th>판정</th><th>분류</th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="file">로그 로드: <input type="file" id="f" accept=".log,.jsonl"/> (없으면 샘플 표시) · logs/guardrail.log</div>
+  </div>
+<script>
+const sample=[
+ {ts:"10:01",tool:"guardrail-review",decision:"block",cat:"destructive-action"},
+ {ts:"10:02",tool:"secret-scan",decision:"block",cat:"credential-leakage"},
+ {ts:"10:03",tool:"guardrail-review",decision:"block",cat:"untrusted-routing"},
+ {ts:"10:04",tool:"guardrail-review",decision:"warn",cat:"tool-misuse"},
+ {ts:"10:05",tool:"guardrail-review",decision:"warn",cat:"obfuscated-content"},
+ {ts:"10:06",tool:"guardrail-review",decision:"allow",cat:"-"},
+ {ts:"10:07",tool:"secure-code-review",decision:"block",cat:"credential-leakage"},
+ {ts:"10:08",tool:"guardrail-review",decision:"allow",cat:"-"}
+];
+const COL={block:"#cf222e",warn:"#9a6700",allow:"#1a7f37"};
+const H={block:90,warn:50,allow:15};
+function render(d){
+ const t=d.length,b=d.filter(x=>x.decision==="block").length,w=d.filter(x=>x.decision==="warn").length,a=d.filter(x=>x.decision==="allow").length;
+ ctotal.textContent=t;cblock.textContent=b;cwarn.textContent=w;callow.textContent=a; const cats={};d.filter(x=>x.cat&&x.cat!=="-").forEach(x=>cats[x.cat]=(cats[x.cat]||0)+1);
+ const mx=Math.max(1,...Object.values(cats));
+ document.getElementById("cats").innerHTML=Object.entries(cats).sort((p,q)=>q[1]-p[1]).map(([k,v])=>
+  `<div class="bar"><span class="name">${k}</span><span class="track"><span class="fill" style="width:${v/mx*100}%;background:${COL.block}"></span></span><span class="c">${v}</span></div>`).join("");
+ document.getElementById("spark").innerHTML=d.map(x=>`<div style="height:${H[x.decision]}%;background:${COL[x.decision]}"></div>`).join("");
+ document.getElementById("rows").innerHTML=d.slice().reverse().map(x=>`<tr><td>${x.ts}</td><td>${x.tool}</td><td><span class="st ${x.decision}">${x.decision.toUpperCase()}</span></td><td>${x.cat}</td></tr>`).join("");
+}
+render(sample);
+document.getElementById("f").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{const d=r.result.trim().split("\n").map(l=>{try{const j=JSON.parse(l);return{ts:(j.ts||"").slice(11,16),tool:j.tool||"-",decision:j.decision,cat:(j.hits&&j.hits[0]?j.hits[0].category:"-")};}catch{return null;}}).filter(Boolean);if(d.length)render(d);};r.readAsText(e.target.files[0]);});
+</script>
+</body>
+</html>
