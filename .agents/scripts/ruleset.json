@@ -10,7 +10,7 @@
       "match": ["AKIA[0-9A-Z]{16}", "-----BEGIN (RSA|OPENSSH|PRIVATE) KEY-----", "ghp_[0-9A-Za-z]{36}", "xox[baprs]-[0-9A-Za-z-]+", "(?i)password\\s*=\\s*['\"][^'\"]{6,}"],
       "message": "Potential credential leakage." },
     { "id": "exfiltration", "category": "untrusted-routing", "severity": "high",
-      "match": ["curl.+(-d|--data).+http", "Invoke-WebRequest.+-Body.+http", "(curl|wget).+https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", "nc\\s+-e"],
+      "match": ["curl.+(-d|--data).+http", "Invoke-WebRequest.+-Body.+http", "(curl|wget).+https?://[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", "nc\\s+-e", "(scp|sftp|rsync)\\s+.+@[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+", "scp\\s+.+@.+:"],
       "message": "Data exfiltration to untrusted destination." },
     { "id": "internal-tool-misuse", "category": "tool-misuse", "severity": "medium",
       "match": ["git\\s+push\\s+--force\\s+origin\\s+(main|master)", "history\\s+-c"],
