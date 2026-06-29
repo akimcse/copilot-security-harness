@@ -1,0 +1,14 @@
+{
+  "name": "copilot-security-harness",
+  "version": "1.0.0",
+  "skills": [
+    { "name": "using-security-harness", "path": ".agents/skills/using-security-harness" },
+    { "name": "guardrail-review", "path": ".agents/skills/guardrail-review" },
+    { "name": "secret-scan", "path": ".agents/skills/secret-scan" },
+    { "name": "threat-model", "path": ".agents/skills/threat-model" },
+    { "name": "secure-code-review", "path": ".agents/skills/secure-code-review" },
+    { "name": "incident-triage", "path": ".agents/skills/incident-triage" }
+  ],
+  "scripts": [".agents/scripts/engine.js", ".agents/scripts/scan.js", ".agents/scripts/pre-tool-use.js"],
+  "ruleset": ".agents/scripts/ruleset.json"
+}
