@@ -3,69 +3,82 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Security Harness — Guardrail Dashboard</title>
+<title>Security Harness — Guardrail SOC</title>
 <style>
-  :root{--bg:#f6f8fa;--surface:#fff;--border:#d0d7de;--text:#1f2328;--muted:#656d76;--accent:#0969da;--block:#cf222e;--warn:#9a6700;--allow:#1a7f37;--blocksoft:#ffebe9;--warnsoft:#fff8c5;--allowsoft:#dafbe1;}
+  :root{--bg:#0a0e14;--surface:#121822;--surface2:#0e131c;--border:#1e2733;--text:#e6edf3;--muted:#7d8896;--accent:#2f81f7;--block:#ff5c6c;--warn:#e3b341;--allow:#3fb950;--blocksoft:rgba(255,92,108,.14);--warnsoft:rgba(227,179,65,.14);--allowsoft:rgba(63,185,80,.14);}
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:28px;}
-  h1{font-size:22px;}h1 .v{color:var(--allow);font-size:13px;font-weight:600;margin-left:8px;}
-  .sub{color:var(--muted);font-size:13px;margin:4px 0 22px;}
-  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .card .n{font-size:30px;font-weight:700;}.card .l{font-size:12px;color:var(--muted);margin-top:2px;}
-  .grid2{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:20px;}
-  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
-  .panel h2{font-size:14px;margin-bottom:14px;}
-  .bar{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12.5px;}
-  .bar .name{width:140px;color:var(--muted);}.bar .track{flex:1;height:18px;background:#eaeef2;border-radius:5px;overflow:hidden;}
-  .bar .fill{height:100%;border-radius:5px;}.bar .c{width:30px;text-align:right;font-weight:700;}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);padding:26px;background-image:radial-gradient(circle at 15% 0,rgba(47,129,247,.06),transparent 40%);}
+  .top{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--allow);box-shadow:0 0 10px var(--allow);animation:p 1.6s infinite;}
+  @keyframes p{50%{opacity:.4;}}
+  h1{font-size:20px;font-weight:700;}.tag{font-size:11px;color:var(--allow);border:1px solid var(--allow);border-radius:999px;padding:2px 9px;}
+  .sub{color:var(--muted);font-size:12.5px;margin:5px 0 22px;}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;position:relative;overflow:hidden;}
+  .card .n{font-size:32px;font-weight:800;}.card .l{font-size:11.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+  .card::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--accent);}
+  .card.b::after{background:var(--block);}.card.w::after{background:var(--warn);}.card.a::after{background:var(--allow);}
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:13px;margin-bottom:16px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;}
+  .panel h2{font-size:13px;margin-bottom:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;}
+  .bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:12.5px;}
+  .bar .name{width:150px;color:var(--text);}.bar .track{flex:1;height:16px;background:var(--surface2);border-radius:5px;overflow:hidden;}
+  .bar .fill{height:100%;border-radius:5px;}.bar .c{width:26px;text-align:right;font-weight:700;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
-  th{text-align:left;color:var(--muted);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);}
-  td{padding:7px 8px;border-bottom:1px solid #eaeef2;}
-  .st{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
-  .block{background:var(--blocksoft);color:var(--block);}.warn{background:var(--warnsoft);color:var(--warn);}.allow{background:var(--allowsoft);color:var(--allow);}
-  .spark{display:flex;align-items:flex-end;gap:5px;height:70px;}
-  .spark div{flex:1;border-radius:3px 3px 0 0;opacity:.85;}
-  .file{font-size:12px;color:var(--muted);margin-top:14px;}.file input{font-size:12px;}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px;border-bottom:1px solid var(--border);}
+  td{padding:8px;border-bottom:1px solid var(--surface2);}tr:hover td{background:var(--surface2);}
+  .st{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:999px;}
+  .st.block{background:var(--blocksoft);color:var(--block);}.st.warn{background:var(--warnsoft);color:var(--warn);}.st.allow{background:var(--allowsoft);color:var(--allow);}
+  .file{font-size:11.5px;color:var(--muted);margin-top:14px;}
+  .donutwrap{display:flex;align-items:center;gap:18px;}.donut-c{font-size:12px;color:var(--muted);line-height:1.9;}
 </style>
 </head>
 <body>
-  <h1>Security Harness — Guardrail Dashboard<span class="v">GitHub Copilot · 6 skills</span></h1>
-  <div class="sub">스킬 차단 현황 · 위협 분류 분포 · 최근 실행 — Microsoft Defender 위협 분류 정렬</div>
+  <div class="top"><span class="dot"></span><h1>Security Harness — Guardrail SOC</h1><span class="tag">LIVE · 6 skills</span></div>
+  <div class="sub">AI 에이전트 위험행위 차단 현황 · Microsoft Defender 위협 분류 정렬 · GitHub Copilot</div>
   <div class="cards">
     <div class="card"><div class="n" id="ctotal">0</div><div class="l">총 평가</div></div>
-    <div class="card"><div class="n" style="color:var(--block)" id="cblock">0</div><div class="l">차단 (BLOCK)</div></div>
-    <div class="card"><div class="n" style="color:var(--warn)" id="cwarn">0</div><div class="l">경고 (WARN)</div></div>
-    <div class="card"><div class="n" style="color:var(--allow)" id="callow">0</div><div class="l">허용 (ALLOW)</div></div>
+    <div class="card b"><div class="n" style="color:var(--block)" id="cblock">0</div><div class="l">차단 BLOCK</div></div>
+    <div class="card w"><div class="n" style="color:var(--warn)" id="cwarn">0</div><div class="l">경고 WARN</div></div>
+    <div class="card a"><div class="n" style="color:var(--allow)" id="callow">0</div><div class="l">허용 ALLOW</div></div>
   </div>
-  <div class="grid2">
+  <div class="grid">
+    <div class="panel"><h2>차단 추이 (누적)</h2><svg id="line" width="100%" height="190" viewBox="0 0 560 190" preserveAspectRatio="none"></svg></div>
+    <div class="panel"><h2>판정 분포</h2><div class="donutwrap"><svg id="donut" width="150" height="150" viewBox="0 0 42 42"></svg><div class="donut-c" id="dlegend"></div></div></div>
+  </div>
+  <div class="grid">
     <div class="panel"><h2>위협 분류별 차단</h2><div id="cats"></div></div>
-    <div class="panel"><h2>판정 추이</h2><div class="spark" id="spark"></div></div>
+    <div class="panel"><h2>최근 실행</h2><table><thead><tr><th>시각</th><th>스킬</th><th>판정</th><th>분류</th></tr></thead><tbody id="rows"></tbody></table></div>
   </div>
-  <div class="panel"><h2>최근 실행</h2><table><thead><tr><th>시각</th><th>스킬</th><th>판정</th><th>분류</th></tr></thead><tbody id="rows"></tbody></table>
-    <div class="file">로그 로드: <input type="file" id="f" accept=".log,.jsonl"/> (없으면 샘플 표시) · logs/guardrail.log</div>
-  </div>
+  <div class="file">로그 로드: <input type="file" id="f" accept=".log,.jsonl"/> (없으면 샘플) · logs/guardrail.log</div>
 <script>
 const sample=[
  {ts:"10:01",tool:"guardrail-review",decision:"block",cat:"destructive-action"},
  {ts:"10:02",tool:"secret-scan",decision:"block",cat:"credential-leakage"},
  {ts:"10:03",tool:"guardrail-review",decision:"block",cat:"untrusted-routing"},
  {ts:"10:04",tool:"guardrail-review",decision:"warn",cat:"tool-misuse"},
- {ts:"10:05",tool:"guardrail-review",decision:"warn",cat:"obfuscated-content"},
- {ts:"10:06",tool:"guardrail-review",decision:"allow",cat:"-"},
+ {ts:"10:05",tool:"guardrail-review",decision:"allow",cat:"-"},
+ {ts:"10:06",tool:"guardrail-review",decision:"warn",cat:"obfuscated-content"},
  {ts:"10:07",tool:"secure-code-review",decision:"block",cat:"credential-leakage"},
- {ts:"10:08",tool:"guardrail-review",decision:"allow",cat:"-"}
+ {ts:"10:08",tool:"guardrail-review",decision:"allow",cat:"-"},
+ {ts:"10:09",tool:"guardrail-review",decision:"block",cat:"destructive-action"},
+ {ts:"10:10",tool:"secret-scan",decision:"block",cat:"credential-leakage"}
 ];
-const COL={block:"#cf222e",warn:"#9a6700",allow:"#1a7f37"};
-const H={block:90,warn:50,allow:15};
+const COL={block:"#ff5c6c",warn:"#e3b341",allow:"#3fb950"};
+const CATCOL=["#ff5c6c","#2f81f7","#e3b341","#a371f7","#3fb950"];
 function render(d){
  const t=d.length,b=d.filter(x=>x.decision==="block").length,w=d.filter(x=>x.decision==="warn").length,a=d.filter(x=>x.decision==="allow").length;
- ctotal.textContent=t;cblock.textContent=b;cwarn.textContent=w;callow.textContent=a; const cats={};d.filter(x=>x.cat&&x.cat!=="-").forEach(x=>cats[x.cat]=(cats[x.cat]||0)+1);
- const mx=Math.max(1,...Object.values(cats));
- document.getElementById("cats").innerHTML=Object.entries(cats).sort((p,q)=>q[1]-p[1]).map(([k,v])=>
-  `<div class="bar"><span class="name">${k}</span><span class="track"><span class="fill" style="width:${v/mx*100}%;background:${COL.block}"></span></span><span class="c">${v}</span></div>`).join("");
- document.getElementById("spark").innerHTML=d.map(x=>`<div style="height:${H[x.decision]}%;background:${COL[x.decision]}"></div>`).join("");
- document.getElementById("rows").innerHTML=d.slice().reverse().map(x=>`<tr><td>${x.ts}</td><td>${x.tool}</td><td><span class="st ${x.decision}">${x.decision.toUpperCase()}</span></td><td>${x.cat}</td></tr>`).join("");
+ ctotal.textContent=t;cblock.textContent=b;cwarn.textContent=w;callow.textContent=a;
+ let cum=0;const pts=d.map((x,i)=>{if(x.decision==="block")cum++;return[i/(d.length-1)*540+10,180-cum/Math.max(1,b)*150];});
+ const path=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(0)+" "+p[1].toFixed(0)).join(" ");
+ const area=path+" L550 180 L10 180 Z";
+ document.getElementById("line").innerHTML='<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5c6c" stop-opacity=".3"/><stop offset="1" stop-color="#ff5c6c" stop-opacity="0"/></linearGradient></defs><path d="'+area+'" fill="url(#g)"/><path d="'+path+'" fill="none" stroke="#ff5c6c" stroke-width="2.5"/>'+pts.map(p=>'<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="3" fill="#ff5c6c"/>').join("");
+ const seg=[["block",b,COL.block],["warn",w,COL.warn],["allow",a,COL.allow]];let off=25;
+ document.getElementById("donut").innerHTML='<circle cx="21" cy="21" r="15.9" fill="none" stroke="#1e2733" stroke-width="6"/>'+seg.map(s=>{const pc=t?s[1]/t*100:0;const c='<circle cx="21" cy="21" r="15.9" fill="none" stroke="'+s[2]+'" stroke-width="6" stroke-dasharray="'+pc+' '+(100-pc)+'" stroke-dashoffset="'+off+'"/>';off-=pc;return c;}).join("")+'<text x="21" y="23" text-anchor="middle" fill="#e6edf3" font-size="7" font-weight="700">'+t+'</text>';
+ document.getElementById("dlegend").innerHTML=seg.map(s=>'<div><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:'+s[2]+'"></i> '+s[0].toUpperCase()+' '+s[1]+'</div>').join("");
+ const cats={};d.filter(x=>x.cat&&x.cat!=="-").forEach(x=>cats[x.cat]=(cats[x.cat]||0)+1);const mx=Math.max(1,...Object.values(cats));
+ document.getElementById("cats").innerHTML=Object.entries(cats).sort((p,q)=>q[1]-p[1]).map((e,i)=>'<div class="bar"><span class="name">'+e[0]+'</span><span class="track"><span class="fill" style="width:'+(e[1]/mx*100)+'%;background:'+CATCOL[i%5]+'"></span></span><span class="c">'+e[1]+'</span></div>').join("");
+ document.getElementById("rows").innerHTML=d.slice().reverse().map(x=>'<tr><td>'+x.ts+'</td><td>'+x.tool+'</td><td><span class="st '+x.decision+'">'+x.decision.toUpperCase()+'</span></td><td>'+x.cat+'</td></tr>').join("");
 }
 render(sample);
 document.getElementById("f").addEventListener("change",e=>{const r=new FileReader();r.onload=()=>{const d=r.result.trim().split("\n").map(l=>{try{const j=JSON.parse(l);return{ts:(j.ts||"").slice(11,16),tool:j.tool||"-",decision:j.decision,cat:(j.hits&&j.hits[0]?j.hits[0].category:"-")};}catch{return null;}}).filter(Boolean);if(d.length)render(d);};r.readAsText(e.target.files[0]);});
