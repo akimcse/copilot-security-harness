@@ -28,7 +28,9 @@ Write-Host "engine + ruleset + hook -> $dst"
 # 2) Copy skills so slash skills work in any folder
 New-Item -ItemType Directory -Force -Path $skillsDst | Out-Null
 Get-ChildItem $skillsSrc -Directory | ForEach-Object {
-  Copy-Item $_.FullName (Join-Path $skillsDst $_.Name) -Recurse -Force
+  $target = Join-Path $skillsDst $_.Name
+  if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+  Copy-Item $_.FullName $target -Recurse -Force
 }
 Write-Host "skills -> $skillsDst"
 
