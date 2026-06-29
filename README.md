@@ -126,10 +126,10 @@ node .agents/scripts/scan.js .   # 디렉터리 정적 스캔
 `/incident-triage` 로 원인·blast radius·격리 범위 산정 → `npm run dashboard`로 분포·추이 확인.
 
 **⑤ 데모·모니터링**
-`npm run demo` 한 줄 시연, `npm run dashboard`로 실시간 SOC 뷰.
+`npm run demo` 한 줄 시연. 대시보드는 직접 `npm run dashboard`로도, Copilot에서 **`/security-dashboard`** 스킬 호출로도 띄울 수 있다(에이전트가 런처 실행+브라우저 오픈 대행).
 
 ## 9. 대시보드
-`npm run dashboard` → localhost:8765 자동 오픈. 라이브 `logs/guardrail.log`를 읽어 차단 현황·위협 분류 분포·판정 추이·최근 실행 표시. 행 호버 시 `심각도·사유·실제 명령` 노출. 로그 파일 직접 업로드도 지원.
+**`/security-dashboard` 스킬** 호출(에이전트가 자동 실행) 또는 `npm run dashboard` → localhost:8765 자동 오픈. 라이브 `logs/guardrail.log`를 읽어 차단 현황·위협 분류 분포·판정 추이·최근 실행 표시. 행 호버 시 `심각도·사유·실제 명령` 노출. 로그 파일 직접 업로드도 지원.
 
 ![dashboard](dashboard/dashboard.png)
 
