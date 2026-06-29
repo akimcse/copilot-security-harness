@@ -1,0 +1,9 @@
+{
+  "preToolUse": [
+    {
+      "matcher": "shell",
+      "type": "command",
+      "command": "node .agents/scripts/pre-tool-use.js"
+    }
+  ]
+}
