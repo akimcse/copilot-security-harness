@@ -20,7 +20,6 @@
 8. [확장 — 룰은 코드가 아닌 데이터](#확장--룰은-코드가-아닌-데이터)
 9. [대시보드](#대시보드)
 10. [검증](#검증)
-11. [대회 제출 요약](#대회-제출-요약)
 
 ---
 
@@ -47,7 +46,7 @@ echo '{"command":"rm -rf /"}' | node .agents/scripts/pre-tool-use.js   # exit 2 
 ```
 
 ## 에셋 구조 — 3계층
-외부 의존성 없이 표준 Node로만 동작한다.
+외부 의존성 없이 표준 Node로만 동작한다. 룰셋은 JSON 데이터, 스킬은 GHCP `.agents/skills/` 포맷, 대시보드는 순수 HTML/JS + zero-dep Node 런처.
 
 ### 1) 운영 컨텍스트 — 에이전트 부팅 시 자동 로드
 | 파일 | 역할 |
@@ -136,40 +135,3 @@ node .agents/scripts/scan.js .   # 디렉터리 정적 스캔
 
 ## 검증
 GitHub Copilot CLI에서 실제 자동 로드·차단 검증 완료 — `demo/VERIFIED.md` 참고. `npm test` 6/6 통과.
-
----
-
-## 대회 제출 요약
-> Track 02 · 직접 개발 · MIT
-
-### 프로젝트 소개 및 구현 내용
-
-**1) Harness Asset의 목적 (해결하고자 한 문제)**
-AI 코딩 에이전트는 셸 명령과 도구 호출을 사람 확인 없이 스스로 실행한다. 편리하지만 `rm -rf /`·자격증명 유출·외부 데이터 유출·`git push --force` 같은 **돌이킬 수 없는 위험 행위**도 그대로 실행될 수 있다. 이 프로젝트는 에이전트와 OS 사이에 **보안 아우터 레이어(가드레일)**를 두어 보안팀의 방법론으로 AI 에이전트를 운영한다 — 즉 **GitHub Copilot 환경에서 위험 행위를 탐지·차단·조사하는 보안 거버넌스 하네스**.
-
-**2) 주요 기능**
-- **실행 전 차단**: pre-tool-use hook이 모든 명령을 가로채 평가, 위험 명령은 실행 전 `exit 2`로 차단
-- **6+1개 보안 워크플로 스킬**: 가드레일 리뷰, 시크릿 스캔, 위협 모델링(STRIDE), 시큐어 코드 리뷰, 인시던트 트리아지, SOC 대시보드
-- **데이터 기반 룰셋**: 5개 위협 분류 탐지 규칙을 코드가 아닌 JSON으로 관리 → 코드 수정 없이 패턴만 확장
-- **감사 로그 & SOC 대시보드**: 모든 차단/허용 결정을 실제 명령 input과 함께 기록·실시간 시각화
-- 위협 분류는 **Microsoft Defender 실시간 에이전트 보호** 클래스와 정렬
-
-**3) 사용 방법 및 활용 대상**
-- **사용 방법**: clone 후 repo 루트에서 `copilot` 실행 → `AGENTS.md`/`.agents/skills` 자동 로드 → `/guardrail-review`·`/secret-scan` 등 스킬 호출, hook으로 실차단
-- **활용 대상**: AI 코딩 에이전트를 안전하게 활용하고자 하는 모든 사용자
-
-### 사용 스택 및 GitHub Copilot·Harness 활용
-
-**1) 기술 스택**
-- 언어/런타임: Node.js (외부 의존성 0 — 표준 라이브러리만, zero-dep)
-- 포맷: GitHub Copilot `.agents/skills/` 스킬 포맷, AGENTS.md/CONTEXT.md 운영 컨텍스트
-- 룰셋: JSON 데이터 기반 정규식 룰셋
-- 대시보드: 순수 HTML/JS + zero-dep Node 런처(`npm run dashboard`)
-
-**2) GitHub Copilot·Harness 활용**
-- GitHub Copilot CLI로 차단 엔진·스킬·룰셋·대시보드를 설계·구현, 실제 자동 로드·차단을 CLI에서 검증(`demo/VERIFIED.md`, `npm test` 6/6 통과)
-- 유명 OSS 하네스(Superpowers)가 생산성 패턴을 이식한 반면, 본 에셋은 **보안 거버넌스** 도메인을 직접 설계
-
-**3) Harness Asset 유형·주요 용도**
-- 유형: 3계층 에셋 — ① 운영 컨텍스트(AGENTS.md/CONTEXT.md) ② 보안 스킬셋(.agents/skills) ③ 차단 엔진(engine.js/ruleset.json/pre-tool-use hook)
-- 용도: AI 에이전트 위험 명령 실시간 차단, 시크릿 스캔, 위협 모델링, 코드 리뷰, 인시던트 대응, SOC 모니터링
