@@ -18,6 +18,7 @@ New-Item -ItemType Directory -Force -Path $dst | Out-Null
 Copy-Item (Join-Path $repo '.agents\scripts\engine.js')       $dst -Force
 Copy-Item (Join-Path $repo '.agents\scripts\ruleset.json')    $dst -Force
 Copy-Item (Join-Path $repo '.agents\scripts\pre-tool-use.js') $dst -Force
+Copy-Item (Join-Path $repo '.agents\scripts\scan.js')         $dst -Force
 Write-Host "engine + ruleset + hook -> $dst"
 
 # 2) Copy skills so slash skills work in any folder
